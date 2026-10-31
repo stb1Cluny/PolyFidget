@@ -1,0 +1,17 @@
+schema_version = "1.0.0"
+
+id = "fidget_gen"
+version = "0.1.0"
+name = "FidgetGen"
+tagline = "Parametric print-in-place nested fidget stars and polygons"
+maintainer = "FidgetGen Developers"
+type = "add-on"
+
+tags = ["Add Mesh", "Object"]
+
+blender_version_min = "5.2.0"
+
+license = ["SPDX:GPL-3.0-or-later"]
+
+[permissions]
+files = "Export STL files and save presets"

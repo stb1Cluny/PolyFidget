@@ -1,0 +1,12 @@
+{
+  "wall_thickness": 1.8,
+  "clearance_xy": 0.55,
+  "clearance_z": 0.5,
+  "flange_depth": 1.4,
+  "flange_angle": 45.0,
+  "lip_land": 1.0,
+  "foot_chamfer": 0.4,
+  "corner_radius": 2.0,
+  "total_height": 12.0,
+  "ring_count": 5
+}
