@@ -6,10 +6,10 @@ from bpy.props import StringProperty
 from bpy_extras.io_utils import ExportHelper
 from mathutils import Vector
 
-from ..ui.panel_fidget_gen import active_fidget
+from ..ui.panel_poly_fidget import active_fidget
 
-SECTION_MODIFIER = "FidgetGen Section"
-SECTION_CUTTER = "FidgetGen Section Cutter"
+SECTION_MODIFIER = "PolyFidget Section"
+SECTION_CUTTER = "PolyFidget Section Cutter"
 
 
 class FidgetOperator:
@@ -18,8 +18,8 @@ class FidgetOperator:
         return active_fidget(context) is not None
 
 
-class FIDGETGEN_OT_align_ground(FidgetOperator, bpy.types.Operator):
-    bl_idname = "fidget_gen.align_ground"
+class POLYFIDGET_OT_align_ground(FidgetOperator, bpy.types.Operator):
+    bl_idname = "poly_fidget.align_ground"
     bl_label = "Align to Ground"
     bl_description = "Move the fidget so its lowest point sits at Z = 0"
     bl_options = {'REGISTER', 'UNDO'}
@@ -42,8 +42,8 @@ def _cutter_mesh(size):
     return mesh
 
 
-class FIDGETGEN_OT_section_toggle(FidgetOperator, bpy.types.Operator):
-    bl_idname = "fidget_gen.section_toggle"
+class POLYFIDGET_OT_section_toggle(FidgetOperator, bpy.types.Operator):
+    bl_idname = "poly_fidget.section_toggle"
     bl_label = "Toggle Cross-Section"
     bl_description = ("Cut away half of the fidget in the viewport to inspect ring "
                       "clearances. Move or rotate the cutter to change the plane. "
@@ -105,8 +105,8 @@ def mesh_report(mesh):
     return non_manifold, degenerate, shells
 
 
-class FIDGETGEN_OT_check_manifold(FidgetOperator, bpy.types.Operator):
-    bl_idname = "fidget_gen.check_manifold"
+class POLYFIDGET_OT_check_manifold(FidgetOperator, bpy.types.Operator):
+    bl_idname = "poly_fidget.check_manifold"
     bl_label = "Check Printability"
     bl_description = "Check that the mesh is watertight and count the separate parts"
 
@@ -120,8 +120,8 @@ class FIDGETGEN_OT_check_manifold(FidgetOperator, bpy.types.Operator):
         return {'FINISHED'}
 
 
-class FIDGETGEN_OT_export_stl(FidgetOperator, bpy.types.Operator, ExportHelper):
-    bl_idname = "fidget_gen.export_stl"
+class POLYFIDGET_OT_export_stl(FidgetOperator, bpy.types.Operator, ExportHelper):
+    bl_idname = "poly_fidget.export_stl"
     bl_label = "Export STL"
     bl_description = "Export the active fidget as an STL in millimetres"
 
@@ -162,8 +162,8 @@ class FIDGETGEN_OT_export_stl(FidgetOperator, bpy.types.Operator, ExportHelper):
 
 
 classes = (
-    FIDGETGEN_OT_align_ground,
-    FIDGETGEN_OT_section_toggle,
-    FIDGETGEN_OT_check_manifold,
-    FIDGETGEN_OT_export_stl,
+    POLYFIDGET_OT_align_ground,
+    POLYFIDGET_OT_section_toggle,
+    POLYFIDGET_OT_check_manifold,
+    POLYFIDGET_OT_export_stl,
 )

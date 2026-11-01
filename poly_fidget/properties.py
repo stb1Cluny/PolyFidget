@@ -149,7 +149,7 @@ def apply_params(dst, values):
 
 def rebuild(obj):
     """Regenerate ``obj``'s mesh from its settings. Returns an error or None."""
-    settings = obj.fidget_gen
+    settings = obj.poly_fidget
     if obj.mode == 'EDIT':
         settings.status = "Leave Edit Mode to update the fidget"
         return settings.status
@@ -183,7 +183,7 @@ def _stat(name):
     return FloatProperty(name=name, subtype='DISTANCE', unit='LENGTH')
 
 
-FidgetGenSettings = type("FidgetGenSettings", (bpy.types.PropertyGroup,), {
+PolyFidgetSettings = type("PolyFidgetSettings", (bpy.types.PropertyGroup,), {
     "__annotations__": {
         **param_annotations(update=_on_update),
         "is_fidget": BoolProperty(default=False, options={'HIDDEN'}),
@@ -197,10 +197,10 @@ FidgetGenSettings = type("FidgetGenSettings", (bpy.types.PropertyGroup,), {
 
 
 def register():
-    bpy.utils.register_class(FidgetGenSettings)
-    bpy.types.Object.fidget_gen = PointerProperty(type=FidgetGenSettings)
+    bpy.utils.register_class(PolyFidgetSettings)
+    bpy.types.Object.poly_fidget = PointerProperty(type=PolyFidgetSettings)
 
 
 def unregister():
-    del bpy.types.Object.fidget_gen
-    bpy.utils.unregister_class(FidgetGenSettings)
+    del bpy.types.Object.poly_fidget
+    bpy.utils.unregister_class(PolyFidgetSettings)

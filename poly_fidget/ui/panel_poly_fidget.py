@@ -1,4 +1,4 @@
-"""Sidebar panels (N-Panel > FidgetGen) and shared parameter layouts."""
+"""Sidebar panels (N-Panel > PolyFidget) and shared parameter layouts."""
 
 import bpy
 
@@ -73,7 +73,7 @@ def draw_all(layout, s):
 
 def active_fidget(context):
     obj = context.active_object
-    if obj is not None and obj.type == 'MESH' and obj.fidget_gen.is_fidget:
+    if obj is not None and obj.type == 'MESH' and obj.poly_fidget.is_fidget:
         return obj
     return None
 
@@ -81,36 +81,36 @@ def active_fidget(context):
 class FidgetPanel:
     bl_space_type = 'VIEW_3D'
     bl_region_type = 'UI'
-    bl_category = "FidgetGen"
+    bl_category = "PolyFidget"
 
 
 class FidgetSubPanel(FidgetPanel):
-    bl_parent_id = "VIEW3D_PT_fidget_gen"
+    bl_parent_id = "VIEW3D_PT_poly_fidget"
 
     @classmethod
     def poll(cls, context):
         return active_fidget(context) is not None
 
 
-class VIEW3D_PT_fidget_gen(FidgetPanel, bpy.types.Panel):
-    bl_label = "FidgetGen"
+class VIEW3D_PT_poly_fidget(FidgetPanel, bpy.types.Panel):
+    bl_label = "PolyFidget"
 
     def draw(self, context):
         layout = self.layout
-        layout.operator("mesh.fidget_gen_add", icon='SOLO_ON')
+        layout.operator("mesh.poly_fidget_add", icon='SOLO_ON')
         obj = active_fidget(context)
         if obj is None:
             layout.label(text="Select a fidget to edit it", icon='INFO')
             return
-        s = obj.fidget_gen
+        s = obj.poly_fidget
         if s.status:
             box = layout.box()
             box.alert = True
             for i, line in enumerate(_wrap(s.status, 40)):
                 box.label(text=line, icon='ERROR' if i == 0 else 'BLANK1')
         row = layout.row(align=True)
-        row.menu("FIDGETGEN_MT_presets", text="Presets", icon='PRESET')
-        row.operator("fidget_gen.preset_save", text="", icon='ADD')
+        row.menu("POLYFIDGET_MT_presets", text="Presets", icon='PRESET')
+        row.operator("poly_fidget.preset_save", text="", icon='ADD')
         col = layout.column(align=True)
         col.enabled = False
         col.use_property_split = True
@@ -120,51 +120,51 @@ class VIEW3D_PT_fidget_gen(FidgetPanel, bpy.types.Panel):
         col.prop(s, "stat_extended")
 
 
-class VIEW3D_PT_fidget_gen_shape(FidgetSubPanel, bpy.types.Panel):
+class VIEW3D_PT_poly_fidget_shape(FidgetSubPanel, bpy.types.Panel):
     bl_label = "Base Shape"
 
     def draw(self, context):
-        draw_shape(self.layout, active_fidget(context).fidget_gen)
+        draw_shape(self.layout, active_fidget(context).poly_fidget)
 
 
-class VIEW3D_PT_fidget_gen_nesting(FidgetSubPanel, bpy.types.Panel):
+class VIEW3D_PT_poly_fidget_nesting(FidgetSubPanel, bpy.types.Panel):
     bl_label = "Nesting"
 
     def draw(self, context):
-        draw_nesting(self.layout, active_fidget(context).fidget_gen)
+        draw_nesting(self.layout, active_fidget(context).poly_fidget)
 
 
-class VIEW3D_PT_fidget_gen_flanges(FidgetSubPanel, bpy.types.Panel):
+class VIEW3D_PT_poly_fidget_flanges(FidgetSubPanel, bpy.types.Panel):
     bl_label = "Height & Flanges"
 
     def draw(self, context):
-        draw_flanges(self.layout, active_fidget(context).fidget_gen)
+        draw_flanges(self.layout, active_fidget(context).poly_fidget)
 
 
-class VIEW3D_PT_fidget_gen_handle(FidgetSubPanel, bpy.types.Panel):
+class VIEW3D_PT_poly_fidget_handle(FidgetSubPanel, bpy.types.Panel):
     bl_label = "Handle"
     bl_options = {'DEFAULT_CLOSED'}
 
     def draw_header(self, context):
-        self.layout.prop(active_fidget(context).fidget_gen, "enable_handle", text="")
+        self.layout.prop(active_fidget(context).poly_fidget, "enable_handle", text="")
 
     def draw(self, context):
-        draw_handle(self.layout, active_fidget(context).fidget_gen)
+        draw_handle(self.layout, active_fidget(context).poly_fidget)
 
 
-class VIEW3D_PT_fidget_gen_print(FidgetSubPanel, bpy.types.Panel):
+class VIEW3D_PT_poly_fidget_print(FidgetSubPanel, bpy.types.Panel):
     bl_label = "Print Prep"
 
     def draw(self, context):
         obj = active_fidget(context)
         col = self.layout.column(align=True)
-        col.operator("fidget_gen.align_ground", icon='TRIA_DOWN_BAR')
-        has_section = obj.modifiers.get("FidgetGen Section") is not None
-        col.operator("fidget_gen.section_toggle", icon='MOD_BOOLEAN', depress=has_section,
+        col.operator("poly_fidget.align_ground", icon='TRIA_DOWN_BAR')
+        has_section = obj.modifiers.get("PolyFidget Section") is not None
+        col.operator("poly_fidget.section_toggle", icon='MOD_BOOLEAN', depress=has_section,
                      text="Hide Cross-Section" if has_section else "Show Cross-Section")
-        col.operator("fidget_gen.check_manifold", icon='CHECKMARK')
+        col.operator("poly_fidget.check_manifold", icon='CHECKMARK')
         col.separator()
-        col.operator("fidget_gen.export_stl", icon='EXPORT')
+        col.operator("poly_fidget.export_stl", icon='EXPORT')
 
 
 def _wrap(text, width):
@@ -181,10 +181,10 @@ def _wrap(text, width):
 
 
 classes = (
-    VIEW3D_PT_fidget_gen,
-    VIEW3D_PT_fidget_gen_shape,
-    VIEW3D_PT_fidget_gen_nesting,
-    VIEW3D_PT_fidget_gen_flanges,
-    VIEW3D_PT_fidget_gen_handle,
-    VIEW3D_PT_fidget_gen_print,
+    VIEW3D_PT_poly_fidget,
+    VIEW3D_PT_poly_fidget_shape,
+    VIEW3D_PT_poly_fidget_nesting,
+    VIEW3D_PT_poly_fidget_flanges,
+    VIEW3D_PT_poly_fidget_handle,
+    VIEW3D_PT_poly_fidget_print,
 )

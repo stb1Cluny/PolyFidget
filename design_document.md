@@ -1,7 +1,7 @@
 # Design Document: Blender Parametric Fidget Star / Polygon Generator
 
 * **Project Title:** Parametric Print-in-Place Fidget Generator
-* **Working Add-on Name:** `FidgetGen`
+* **Working Add-on Name:** `PolyFidget`
 * **Target Software:** Blender 5.2 LTS+ (`bpy`, `bmesh`, Geometry Nodes)
 * **Author / Project Lead:** Add-on Development Team
 * **Document Version:** 1.0.0
@@ -55,7 +55,7 @@ Develop a native Blender add-on that empowers 3D printing hobbyists, digital mod
 
 ## 3. Parameter Specifications & UI Architecture
 
-The add-on will expose controls in the 3D Viewport Sidebar (`N-Panel > FidgetGen`) and via an `Add Mesh` operator dialog (`Shift + A > Mesh > Fidget Star / Polygon`).
+The add-on will expose controls in the 3D Viewport Sidebar (`N-Panel > PolyFidget`) and via an `Add Mesh` operator dialog (`Shift + A > Mesh > Fidget Star / Polygon`).
 
 ### 3.1 Base Polygon Geometry
 | Parameter | Type | Default | Range | Description |
@@ -140,7 +140,7 @@ For ring index $i$ (where $i=0$ is the outermost ring):
 ## 5. Directory Structure
 
 ```text
-fidget_gen/
+poly_fidget/
 ├── __init__.py                # Add-on registration, bl_info, and preferences
 ├── operators/
 │   ├── __init__.py
@@ -148,7 +148,7 @@ fidget_gen/
 │   └── op_export_print.py     # STL/3MF export and validation operators
 ├── ui/
 │   ├── __init__.py
-│   └── panel_fidget_gen.py    # N-panel UI layouts, sliders, and buttons
+│   └── panel_poly_fidget.py    # N-panel UI layouts, sliders, and buttons
 ├── core/
 │   ├── __init__.py
 │   ├── polygon_builder.py     # 2D profile and corner filleting algorithms

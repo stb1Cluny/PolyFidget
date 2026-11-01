@@ -1,6 +1,6 @@
 # PolyFidget
 
-**FidgetGen** is a Blender 5.2 extension for designing print-in-place nested fidgets: stars, polygons and wavy shapes made of rings that slide inside each other. They print as one piece and come off the build plate already moving.
+**PolyFidget** is a Blender 5.2 extension for designing print-in-place nested fidgets: stars, polygons and wavy shapes made of rings that slide inside each other. They print as one piece and come off the build plate already moving.
 
 ## Features
 
@@ -24,12 +24,12 @@
 2. Build the extension package:
 
    ```bash
-   blender --command extension build --source-dir fidget_gen --output-dir dist
+   blender --command extension build --source-dir poly_fidget --output-dir dist
    ```
 
 3. In Blender, go to **Edit > Preferences > Get Extensions**, choose **Install from Disk…**, and pick the zip in `dist/`.
 
-To use it, press **Shift+A > Mesh > Fidget Star / Polygon** in the 3D Viewport, then adjust the settings in the **FidgetGen** tab of the sidebar (N).
+To use it, press **Shift+A > Mesh > Fidget Star / Polygon** in the 3D Viewport, then adjust the settings in the **PolyFidget** tab of the sidebar (N).
 
 ## Project status
 
@@ -50,4 +50,4 @@ Bug reports and print results are very welcome.
 
 ## License
 
-GPL-3.0-or-later. That is the license declared in `fidget_gen/blender_manifest.toml`, as Blender add-ons require.
+GPL-3.0-or-later. That is the license declared in `poly_fidget/blender_manifest.toml`, as Blender add-ons require.

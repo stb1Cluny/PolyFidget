@@ -1,4 +1,4 @@
-"""FidgetGen: parametric print-in-place nested fidget stars and polygons."""
+"""PolyFidget: parametric print-in-place nested fidget stars and polygons."""
 
 import bpy
 
@@ -6,7 +6,7 @@ from . import operators, properties, ui
 from .operators import op_create_fidget
 
 
-class FidgetGenPreferences(bpy.types.AddonPreferences):
+class PolyFidgetPreferences(bpy.types.AddonPreferences):
     bl_idname = __package__
 
     set_scene_millimetres: bpy.props.BoolProperty(
@@ -20,7 +20,7 @@ class FidgetGenPreferences(bpy.types.AddonPreferences):
         self.layout.prop(self, "set_scene_millimetres")
 
 
-classes = (FidgetGenPreferences,) + operators.classes + ui.classes
+classes = (PolyFidgetPreferences,) + operators.classes + ui.classes
 
 
 def register():

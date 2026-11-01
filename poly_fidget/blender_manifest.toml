@@ -1,10 +1,10 @@
 schema_version = "1.0.0"
 
-id = "fidget_gen"
+id = "poly_fidget"
 version = "0.1.0"
-name = "FidgetGen"
+name = "PolyFidget"
 tagline = "Parametric print-in-place nested fidget stars and polygons"
-maintainer = "FidgetGen Developers"
+maintainer = "PolyFidget Developers"
 type = "add-on"
 
 tags = ["Add Mesh", "Object"]

@@ -8,7 +8,7 @@ import bpy
 from bpy.props import StringProperty
 
 from .. import properties
-from ..ui.panel_fidget_gen import active_fidget, draw_all
+from ..ui.panel_poly_fidget import active_fidget, draw_all
 
 ROOT_PACKAGE = __package__.rpartition(".")[0]
 BUNDLED_PRESETS = os.path.join(os.path.dirname(os.path.dirname(__file__)), "assets", "presets")
@@ -32,8 +32,8 @@ def _execute(self, context):
     mesh = bpy.data.meshes.new("Fidget")
     obj = bpy.data.objects.new("Fidget", mesh)
     obj.location = context.scene.cursor.location
-    obj.fidget_gen.is_fidget = True
-    properties.copy_params(self, obj.fidget_gen)
+    obj.poly_fidget.is_fidget = True
+    properties.copy_params(self, obj.poly_fidget)
     error = properties.rebuild(obj)
     if error:
         bpy.data.objects.remove(obj)
@@ -53,9 +53,9 @@ def _draw(self, context):
     draw_all(self.layout, self)
 
 
-MESH_OT_fidget_gen_add = type("MESH_OT_fidget_gen_add", (bpy.types.Operator,), {
+MESH_OT_poly_fidget_add = type("MESH_OT_poly_fidget_add", (bpy.types.Operator,), {
     "__annotations__": properties.param_annotations(),
-    "bl_idname": "mesh.fidget_gen_add",
+    "bl_idname": "mesh.poly_fidget_add",
     "bl_label": "Fidget Star / Polygon",
     "bl_description": "Add a parametric print-in-place nested fidget",
     "bl_options": {'REGISTER', 'UNDO'},
@@ -68,7 +68,7 @@ def user_preset_dir():
     try:
         return bpy.utils.extension_path_user(ROOT_PACKAGE, path="presets", create=True)
     except ValueError:  # installed as a legacy add-on
-        return bpy.utils.user_resource('CONFIG', path="fidget_gen_presets", create=True)
+        return bpy.utils.user_resource('CONFIG', path="poly_fidget_presets", create=True)
 
 
 def _preset_files(folder):
@@ -81,8 +81,8 @@ def _preset_label(path):
     return bpy.path.display_name(os.path.basename(path))
 
 
-class FIDGETGEN_OT_preset_apply(bpy.types.Operator):
-    bl_idname = "fidget_gen.preset_apply"
+class POLYFIDGET_OT_preset_apply(bpy.types.Operator):
+    bl_idname = "poly_fidget.preset_apply"
     bl_label = "Apply Preset"
     bl_description = "Load the settings stored in this preset"
     bl_options = {'REGISTER', 'UNDO'}
@@ -103,15 +103,15 @@ class FIDGETGEN_OT_preset_apply(bpy.types.Operator):
             return {'CANCELLED'}
         for name in ANGLE_PARAMS & values.keys():
             values[name] = math.radians(values[name])
-        properties.apply_params(obj.fidget_gen, values)
+        properties.apply_params(obj.poly_fidget, values)
         error = properties.rebuild(obj)
         if error:
             self.report({'WARNING'}, error)
         return {'FINISHED'}
 
 
-class FIDGETGEN_OT_preset_save(bpy.types.Operator):
-    bl_idname = "fidget_gen.preset_save"
+class POLYFIDGET_OT_preset_save(bpy.types.Operator):
+    bl_idname = "poly_fidget.preset_save"
     bl_label = "Save Preset"
     bl_description = "Save the current fidget settings as a preset"
 
@@ -125,7 +125,7 @@ class FIDGETGEN_OT_preset_save(bpy.types.Operator):
         return context.window_manager.invoke_props_dialog(self)
 
     def execute(self, context):
-        s = active_fidget(context).fidget_gen
+        s = active_fidget(context).poly_fidget
         values = {}
         for name in properties.PARAM_NAMES:
             value = getattr(s, name)
@@ -138,7 +138,7 @@ class FIDGETGEN_OT_preset_save(bpy.types.Operator):
         return {'FINISHED'}
 
 
-class FIDGETGEN_MT_presets(bpy.types.Menu):
+class POLYFIDGET_MT_presets(bpy.types.Menu):
     bl_label = "Fidget Presets"
 
     def draw(self, context):
@@ -146,20 +146,20 @@ class FIDGETGEN_MT_presets(bpy.types.Menu):
         bundled = _preset_files(BUNDLED_PRESETS)
         user = _preset_files(user_preset_dir())
         for path in bundled:
-            layout.operator("fidget_gen.preset_apply", text=_preset_label(path)).filepath = path
+            layout.operator("poly_fidget.preset_apply", text=_preset_label(path)).filepath = path
         if user:
             layout.separator()
             for path in user:
-                layout.operator("fidget_gen.preset_apply", text=_preset_label(path)).filepath = path
+                layout.operator("poly_fidget.preset_apply", text=_preset_label(path)).filepath = path
 
 
 def menu_func(self, context):
-    self.layout.operator(MESH_OT_fidget_gen_add.bl_idname, icon='SOLO_ON')
+    self.layout.operator(MESH_OT_poly_fidget_add.bl_idname, icon='SOLO_ON')
 
 
 classes = (
-    MESH_OT_fidget_gen_add,
-    FIDGETGEN_OT_preset_apply,
-    FIDGETGEN_OT_preset_save,
-    FIDGETGEN_MT_presets,
+    MESH_OT_poly_fidget_add,
+    POLYFIDGET_OT_preset_apply,
+    POLYFIDGET_OT_preset_save,
+    POLYFIDGET_MT_presets,
 )
