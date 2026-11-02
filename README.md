@@ -24,14 +24,8 @@
 
 ## Installation
 
-1. Download or clone this repository.
-2. Build the extension package:
-
-   ```bash
-   blender --command extension build --source-dir poly_fidget --output-dir dist
-   ```
-
-3. In Blender, go to **Edit > Preferences > Get Extensions**, choose **Install from Disk…**, and pick the zip in `dist/`.
+1. Download `poly_fidget-x.y.z.zip` from the [latest release](https://github.com/stb1Cluny/PolyFidget/releases/latest). Don't unzip it.
+2. In Blender 5.2, open **Edit > Preferences > Get Extensions**, click the **⌄** menu at the top right, choose **Install from Disk…**, and pick the zip.
 
 To use it, press **Shift+A > Mesh > Fidget Star / Polygon** in the 3D Viewport, then adjust the settings in the **PolyFidget** tab of the sidebar (N).
 
