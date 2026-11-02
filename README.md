@@ -2,6 +2,10 @@
 
 **PolyFidget** is a Blender 5.2 extension for designing print-in-place nested fidgets: stars, polygons and wavy shapes made of rings that slide inside each other. They print as one piece and come off the build plate already moving.
 
+<video src="https://github.com/stb1Cluny/PolyFidget/raw/main/media/demo1.mp4" controls muted width="100%"></video>
+
+If the video doesn't play, [download the demo](media/demo1.mp4).
+
 ## Features
 
 - **Shapes:** stars, regular polygons and fluted (wavy) outlines, with settings for point count, size, indent and corner rounding.
