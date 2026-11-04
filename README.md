@@ -18,7 +18,7 @@
 - **Handles:** a cylinder, knurled grip or mushroom cap on the centre core, or a thicker, taller outer frame to hold.
 - **Live editing:** settings are stored on the object, and the mesh rebuilds as you change them.
 - **Print prep:**
-  - Presets for 0.4 mm and 0.6 mm nozzles and for tight or loose fits, and you can save your own.
+  - Presets for 0.4 mm and 0.6 mm nozzles and for tight or loose fits. You can save, rename and delete your own.
   - Tools to sit the model on the ground, preview a cross-section and check the mesh is printable.
   - STL export at 1 unit = 1 mm.
 

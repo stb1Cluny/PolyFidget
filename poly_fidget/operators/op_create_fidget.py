@@ -1,4 +1,4 @@
-"""Add Mesh > Fidget Star / Polygon, plus preset load/save."""
+"""Add Mesh > Fidget Star / Polygon, plus preset apply/save/rename/delete."""
 
 import json
 import math
@@ -7,11 +7,10 @@ import os
 import bpy
 from bpy.props import StringProperty
 
-from .. import properties
+from .. import presets, properties
 from ..ui.panel_poly_fidget import active_fidget, draw_all
 
-ROOT_PACKAGE = __package__.rpartition(".")[0]
-BUNDLED_PRESETS = os.path.join(os.path.dirname(os.path.dirname(__file__)), "assets", "presets")
+ROOT_PACKAGE = presets.ROOT_PACKAGE
 ANGLE_PARAMS = {"wall_angle", "flange_angle"}   # stored in degrees in preset files
 
 
@@ -64,21 +63,13 @@ MESH_OT_poly_fidget_add = type("MESH_OT_poly_fidget_add", (bpy.types.Operator,),
 })
 
 
-def user_preset_dir():
-    try:
-        return bpy.utils.extension_path_user(ROOT_PACKAGE, path="presets", create=True)
-    except ValueError:  # installed as a legacy add-on
-        return bpy.utils.user_resource('CONFIG', path="poly_fidget_presets", create=True)
-
-
-def _preset_files(folder):
-    if not os.path.isdir(folder):
-        return []
-    return sorted(os.path.join(folder, f) for f in os.listdir(folder) if f.endswith(".json"))
-
-
-def _preset_label(path):
-    return bpy.path.display_name(os.path.basename(path))
+def _check_name(name):
+    """Error message for an unusable user preset name, or "" if it is fine."""
+    if not presets.user_path(name):
+        return "Enter a preset name"
+    if name.strip().lower() in presets.bundled_labels():
+        return f'"{name.strip()}" is a built-in preset name, choose another'
+    return ""
 
 
 class POLYFIDGET_OT_preset_apply(bpy.types.Operator):
@@ -104,6 +95,7 @@ class POLYFIDGET_OT_preset_apply(bpy.types.Operator):
         for name in ANGLE_PARAMS & values.keys():
             values[name] = math.radians(values[name])
         properties.apply_params(obj.poly_fidget, values)
+        presets.set_active(self.filepath)
         error = properties.rebuild(obj)
         if error:
             self.report({'WARNING'}, error)
@@ -113,7 +105,8 @@ class POLYFIDGET_OT_preset_apply(bpy.types.Operator):
 class POLYFIDGET_OT_preset_save(bpy.types.Operator):
     bl_idname = "poly_fidget.preset_save"
     bl_label = "Save Preset"
-    bl_description = "Save the current fidget settings as a preset"
+    bl_description = ("Save the current fidget settings as a preset. Saving under an "
+                      "existing name overwrites that preset")
 
     name: StringProperty(name="Name", default="My Fidget")
 
@@ -122,19 +115,108 @@ class POLYFIDGET_OT_preset_save(bpy.types.Operator):
         return active_fidget(context) is not None
 
     def invoke(self, context, event):
-        return context.window_manager.invoke_props_dialog(self)
+        current = presets.active_user()
+        if current:
+            self.name = presets.label(current)
+        return context.window_manager.invoke_props_dialog(self, confirm_text="Save")
+
+    def draw(self, context):
+        layout = self.layout
+        layout.prop(self, "name")
+        error = _check_name(self.name)
+        path = presets.user_path(self.name)
+        if error:
+            layout.label(text=error, icon='ERROR')
+        elif os.path.isfile(path):
+            layout.label(text=f'Overwrites the preset "{presets.label(path)}"', icon='INFO')
 
     def execute(self, context):
+        error = _check_name(self.name)
+        if error:
+            self.report({'ERROR'}, error)
+            return {'CANCELLED'}
         s = active_fidget(context).poly_fidget
         values = {}
         for name in properties.PARAM_NAMES:
             value = getattr(s, name)
             values[name] = math.degrees(value) if name in ANGLE_PARAMS else value
-        filename = bpy.path.clean_name(self.name).lower() + ".json"
-        path = os.path.join(user_preset_dir(), filename)
+        path = presets.user_path(self.name)
         with open(path, "w", encoding="utf-8") as f:
             json.dump(values, f, indent=2)
-        self.report({'INFO'}, f"Saved preset {path}")
+        presets.set_active(path)
+        self.report({'INFO'}, f'Saved preset "{presets.label(path)}"')
+        return {'FINISHED'}
+
+
+class POLYFIDGET_OT_preset_rename(bpy.types.Operator):
+    bl_idname = "poly_fidget.preset_rename"
+    bl_label = "Rename Preset"
+    bl_description = "Rename the active user preset"
+
+    name: StringProperty(name="Name")
+
+    @classmethod
+    def poll(cls, context):
+        if not presets.active_user():
+            cls.poll_message_set("Apply or save one of your own presets first")
+            return False
+        return True
+
+    def invoke(self, context, event):
+        self.name = presets.label(presets.active_user())
+        return context.window_manager.invoke_props_dialog(self, confirm_text="Rename")
+
+    def draw(self, context):
+        layout = self.layout
+        layout.prop(self, "name")
+        error = self._error()
+        if error:
+            layout.label(text=error, icon='ERROR')
+
+    def _error(self):
+        error = _check_name(self.name)
+        if error:
+            return error
+        old, new = presets.active_user(), presets.user_path(self.name)
+        if os.path.normcase(new) != os.path.normcase(old) and os.path.exists(new):
+            return f'A preset named "{presets.label(new)}" already exists'
+        return ""
+
+    def execute(self, context):
+        error = self._error()
+        if error:
+            self.report({'ERROR'}, error)
+            return {'CANCELLED'}
+        old, new = presets.active_user(), presets.user_path(self.name)
+        os.replace(old, new)
+        presets.set_active(new)
+        self.report({'INFO'}, f'Renamed preset to "{presets.label(new)}"')
+        return {'FINISHED'}
+
+
+class POLYFIDGET_OT_preset_remove(bpy.types.Operator):
+    bl_idname = "poly_fidget.preset_remove"
+    bl_label = "Delete Preset"
+    bl_description = "Delete the active user preset. Built-in presets can't be deleted"
+
+    @classmethod
+    def poll(cls, context):
+        if not presets.active_user():
+            cls.poll_message_set("Apply one of your own presets first")
+            return False
+        return True
+
+    def invoke(self, context, event):
+        name = presets.label(presets.active_user())
+        return context.window_manager.invoke_confirm(
+            self, event, title="Delete Preset", message=f'Delete the preset "{name}"?',
+            confirm_text="Delete", icon='WARNING')
+
+    def execute(self, context):
+        path = presets.active_user()
+        os.remove(path)
+        presets.set_active("")
+        self.report({'INFO'}, f'Deleted preset "{presets.label(path)}"')
         return {'FINISHED'}
 
 
@@ -143,14 +225,13 @@ class POLYFIDGET_MT_presets(bpy.types.Menu):
 
     def draw(self, context):
         layout = self.layout
-        bundled = _preset_files(BUNDLED_PRESETS)
-        user = _preset_files(user_preset_dir())
-        for path in bundled:
-            layout.operator("poly_fidget.preset_apply", text=_preset_label(path)).filepath = path
+        user = presets.files(presets.user_dir())
+        for path in presets.files(presets.BUNDLED_DIR):
+            layout.operator("poly_fidget.preset_apply", text=presets.label(path)).filepath = path
         if user:
             layout.separator()
             for path in user:
-                layout.operator("poly_fidget.preset_apply", text=_preset_label(path)).filepath = path
+                layout.operator("poly_fidget.preset_apply", text=presets.label(path)).filepath = path
 
 
 def menu_func(self, context):
@@ -161,5 +242,7 @@ classes = (
     MESH_OT_poly_fidget_add,
     POLYFIDGET_OT_preset_apply,
     POLYFIDGET_OT_preset_save,
+    POLYFIDGET_OT_preset_rename,
+    POLYFIDGET_OT_preset_remove,
     POLYFIDGET_MT_presets,
 )

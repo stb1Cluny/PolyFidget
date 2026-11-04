@@ -2,6 +2,8 @@
 
 import bpy
 
+from .. import presets
+
 
 def draw_shape(layout, s):
     col = layout.column()
@@ -109,8 +111,12 @@ class VIEW3D_PT_poly_fidget(FidgetPanel, bpy.types.Panel):
             for i, line in enumerate(_wrap(s.status, 40)):
                 box.label(text=line, icon='ERROR' if i == 0 else 'BLANK1')
         row = layout.row(align=True)
-        row.menu("POLYFIDGET_MT_presets", text="Presets", icon='PRESET')
+        current = presets.active()
+        row.menu("POLYFIDGET_MT_presets", text=presets.label(current) if current else "Presets",
+                 icon='PRESET')
         row.operator("poly_fidget.preset_save", text="", icon='ADD')
+        row.operator("poly_fidget.preset_rename", text="", icon='GREASEPENCIL')
+        row.operator("poly_fidget.preset_remove", text="", icon='REMOVE')
         col = layout.column(align=True)
         col.enabled = False
         col.use_property_split = True
