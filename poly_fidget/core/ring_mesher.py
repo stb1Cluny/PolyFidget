@@ -32,6 +32,7 @@ from .polygon_builder import FitError, GeometryError
 WELD_DISTANCE = 1e-4
 MIN_CORE_RADIUS = 1.0
 HANDLE_MARGIN = 0.8
+MIN_LIP_OVERLAP = 0.4   # radial overlap of neighbouring lips, about one nozzle width
 
 
 class Ring:
@@ -91,6 +92,14 @@ def plan_rings(p):
     gap = p.clearance_xy / math.sin(p.wall_angle) if slanted else p.clearance_xy
     ftype = p.flange_type
     frame = p.enable_handle and p.handle_anchor == 'OUTER_FRAME'
+
+    # Neighbouring lips overlap radially by depth - gap; keep enough to hold.
+    if depth - gap < MIN_LIP_OVERLAP - 1e-6:
+        max_clearance = depth - MIN_LIP_OVERLAP
+        if slanted:
+            max_clearance *= math.sin(p.wall_angle)
+        raise GeometryError(
+            f"XY Clearance too large: max {max_clearance:.2f} mm with this Flange Depth")
     core_handle = p.enable_handle and p.handle_anchor == 'INNER_CORE'
 
     if ftype == 'CAPTIVE_DUAL':

@@ -71,7 +71,7 @@ The add-on will expose controls in the 3D Viewport Sidebar (`N-Panel > PolyFidge
 | :--- | :--- | :--- | :--- | :--- |
 | `ring_count` | Int | `6` | `2 – 30` | Number of concentric nested shells. |
 | `wall_thickness`| Float | `1.2 mm` | `0.8 – 5.0 mm` | Radial thickness of each ring wall (3 perimeters on 0.4mm nozzle). |
-| `clearance_xy` | Float | `0.4 mm` | `0.2 – 1.0 mm` | Air gap between adjacent shells in neutral position. |
+| `clearance_xy` | Float | `0.4 mm` | `0.2 – 2.6 mm` | Air gap between adjacent shells in neutral position. Limited to `flange_depth − 0.4 mm` so the lips always overlap. |
 | `scaling_mode` | Enum | `LINEAR` | `LINEAR`, `GEOMETRIC` | Method for distributing ring widths from outer shell to core. |
 
 ### 3.3 Height & Flange Overhang Parameters
@@ -79,7 +79,7 @@ The add-on will expose controls in the 3D Viewport Sidebar (`N-Panel > PolyFidge
 | :--- | :--- | :--- | :--- | :--- |
 | `total_height` | Float | `10.0 mm` | `4.0 – 50.0 mm` | Height of the nested assembly when collapsed flat. |
 | `flange_angle` | Float | `45.0°` | `30.0° – 60.0°` | Overhang angle relative to the horizontal build plate. |
-| `flange_depth` | Float | `1.0 mm` | `0.4 – 3.0 mm` | Radial width of the interlocking lip. |
+| `flange_depth` | Float | `1.0 mm` | `0.6 – 3.0 mm` | Radial width of the interlocking lip. |
 | `flange_type` | Enum | `TELESCOPIC_DOWN` | `TELESCOPIC_DOWN`, `TELESCOPIC_UP`, `CAPTIVE_DUAL` | Direction and action of the interlocking overhang. |
 | `clearance_z` | Float | `0.4 mm` | `0.2 – 0.8 mm` | Vertical slip gap between interlocking flanges. |
 
