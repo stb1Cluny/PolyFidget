@@ -31,7 +31,7 @@ To use it, press **Shift+A > Mesh > Fidget Star / Polygon** in the 3D Viewport, 
 
 ## Project status
 
-This is an early version (0.1.0). Here is where it stands:
+This is an early version. Here is where it stands:
 
 - **Nothing has been test-printed yet.** Every mesh is checked to be watertight and every clearance is correct on paper, but no physical print has confirmed that the parts come apart and move. Expect to tune clearance for your printer and filament.
 - It is only tested with Blender 5.2 on Windows.
