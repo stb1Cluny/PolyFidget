@@ -71,7 +71,7 @@ The add-on will expose controls in the 3D Viewport Sidebar (`N-Panel > PolyFidge
 | :--- | :--- | :--- | :--- | :--- |
 | `ring_count` | Int | `6` | `2 – 30` | Number of concentric nested shells. |
 | `wall_thickness`| Float | `1.2 mm` | `0.8 – 5.0 mm` | Radial thickness of each ring wall (3 perimeters on 0.4mm nozzle). |
-| `clearance_xy` | Float | `0.4 mm` | `0.2 – 2.6 mm` | Air gap between adjacent shells in neutral position. Limited to `flange_depth − 0.4 mm` so the lips always overlap. |
+| `clearance_xy` | Float | `0.4 mm` | `0.2 – 10 mm` | Air gap between adjacent shells in neutral position. Limited so neighbouring rings overlap by 0.4 mm: `flange_depth − 0.4 mm` with lips, or by wall angle and height when flangeless. |
 | `scaling_mode` | Enum | `LINEAR` | `LINEAR`, `GEOMETRIC` | Method for distributing ring widths from outer shell to core. |
 
 ### 3.3 Height & Flange Overhang Parameters
@@ -81,6 +81,8 @@ The add-on will expose controls in the 3D Viewport Sidebar (`N-Panel > PolyFidge
 | `flange_angle` | Float | `45.0°` | `30.0° – 60.0°` | Overhang angle relative to the horizontal build plate. |
 | `flange_depth` | Float | `1.0 mm` | `0.6 – 3.0 mm` | Radial width of the interlocking lip. |
 | `flange_type` | Enum | `TELESCOPIC_DOWN` | `TELESCOPIC_DOWN`, `TELESCOPIC_UP`, `CAPTIVE_DUAL` | Direction and action of the interlocking overhang. |
+| `wall_style` | Enum | `VERTICAL` | `VERTICAL`, `SLANTED`, `FLANGELESS` | Wall profile. Flangeless walls have no lips; the slant captures the rings, so XY clearance is limited to `H·cos(wall_angle) − 0.4·sin(wall_angle)` (H is half the height for Captive Dual). |
+| `bulge` | Enum | `OUTWARD` | `OUTWARD`, `INWARD` | Which way flangeless Captive Dual walls point at mid-height. |
 | `clearance_z` | Float | `0.4 mm` | `0.2 – 0.8 mm` | Vertical slip gap between interlocking flanges. |
 
 ### 3.4 Handle & Grip Configuration

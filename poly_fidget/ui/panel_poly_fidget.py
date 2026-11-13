@@ -40,12 +40,17 @@ def draw_flanges(layout, s):
     col.prop(s, "total_height")
     col.prop(s, "flange_type")
     col.prop(s, "wall_style")
-    if s.wall_style == 'SLANTED':
+    flangeless = s.wall_style == 'FLANGELESS'
+    if s.wall_style != 'VERTICAL':
         col.prop(s, "wall_angle")
-    col.prop(s, "flange_angle")
-    col.prop(s, "flange_depth")
-    col.prop(s, "clearance_z")
-    col.prop(s, "lip_land")
+    if flangeless:
+        if s.flange_type == 'CAPTIVE_DUAL':
+            col.prop(s, "bulge")
+    else:
+        col.prop(s, "flange_angle")
+        col.prop(s, "flange_depth")
+        col.prop(s, "clearance_z")
+        col.prop(s, "lip_land")
     col.prop(s, "foot_chamfer")
 
 

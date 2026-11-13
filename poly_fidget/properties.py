@@ -26,6 +26,12 @@ SCALING_ITEMS = [
 WALL_STYLE_ITEMS = [
     ('VERTICAL', "Vertical", "Straight walls with chamfered retaining lips"),
     ('SLANTED', "Slanted", "Walls lean at the wall angle, with retaining lips"),
+    ('FLANGELESS', "Flangeless",
+     "Slanted walls with no lips: the slant itself holds the rings, like nested funnels"),
+]
+BULGE_ITEMS = [
+    ('OUTWARD', "Outward", "Walls point outwards at mid-height, like >"),
+    ('INWARD', "Inward", "Walls point inwards at mid-height, like <"),
 ]
 FLANGE_ITEMS = [
     ('TELESCOPIC_DOWN', "Telescopic Down", "Inner rings drop below the outer ring"),
@@ -47,7 +53,7 @@ PARAM_NAMES = (
     "shape_type", "point_count", "outer_radius", "indent_ratio", "corner_radius",
     "ring_count", "wall_thickness", "clearance_xy", "scaling_mode", "geometric_ratio",
     "total_height", "wall_style", "wall_angle", "flange_angle", "flange_depth",
-    "flange_type", "clearance_z", "lip_land", "foot_chamfer",
+    "flange_type", "bulge", "clearance_z", "lip_land", "foot_chamfer",
     "enable_handle", "handle_style", "handle_height", "handle_diameter", "handle_anchor",
     "resolution",
 )
@@ -83,9 +89,10 @@ def param_annotations(update=None):
                                   default=6, min=2, max=30, update=u),
         "wall_thickness": _length("Wall Thickness", 1.2, 0.8, 5.0,
                                   "Radial thickness of each ring wall", u),
-        "clearance_xy": _length("XY Clearance", 0.4, 0.2, 2.6,
-                                "Air gap between neighbouring rings. At most Flange Depth "
-                                "minus 0.4 mm, so the lips always overlap", u),
+        "clearance_xy": _length("XY Clearance", 0.4, 0.2, 10.0,
+                                "Air gap between neighbouring rings. Limited so neighbouring "
+                                "rings always overlap by 0.4 mm: by Flange Depth with lips, "
+                                "by Wall Angle and Total Height when flangeless", u),
         "scaling_mode": EnumProperty(name="Scaling", items=SCALING_ITEMS, default='LINEAR', update=u),
         "geometric_ratio": FloatProperty(name="Ratio",
                                          description="Wall growth per ring, from the core outwards",
@@ -102,6 +109,9 @@ def param_annotations(update=None):
                                 "Radial width of the interlocking lip", u),
         "flange_type": EnumProperty(name="Flange Type", items=FLANGE_ITEMS,
                                     default='TELESCOPIC_DOWN', update=u),
+        "bulge": EnumProperty(name="Bulge", items=BULGE_ITEMS, default='OUTWARD',
+                              description="Which way flangeless Captive Dual walls point",
+                              update=u),
         "clearance_z": _length("Z Clearance", 0.4, 0.2, 0.8,
                                "Vertical gap between interlocking lips", u),
         "lip_land": _length("Lip Land", 0.8, 0.4, 3.0,

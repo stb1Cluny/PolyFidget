@@ -32,7 +32,8 @@ from .polygon_builder import FitError, GeometryError
 WELD_DISTANCE = 1e-4
 MIN_CORE_RADIUS = 1.0
 HANDLE_MARGIN = 0.8
-MIN_LIP_OVERLAP = 0.4   # radial overlap of neighbouring lips, about one nozzle width
+MIN_LIP_OVERLAP = 0.4   # radial overlap of neighbouring rings, about one nozzle width
+MIN_CLEARANCE = 0.2     # smallest XY Clearance the panel allows
 
 
 class Ring:
@@ -86,32 +87,50 @@ def plan_rings(p):
     height = p.total_height
     depth = p.flange_depth
     land = p.lip_land
-    lip_h = depth * math.tan(p.flange_angle)
-    slanted = p.wall_style == 'SLANTED'
+    slanted = p.wall_style != 'VERTICAL'
+    flangeless = p.wall_style == 'FLANGELESS'
     lean = 1.0 / math.tan(p.wall_angle) if slanted else 0.0
     gap = p.clearance_xy / math.sin(p.wall_angle) if slanted else p.clearance_xy
     ftype = p.flange_type
     frame = p.enable_handle and p.handle_anchor == 'OUTER_FRAME'
-
-    # Neighbouring lips overlap radially by depth - gap; keep enough to hold.
-    if depth - gap < MIN_LIP_OVERLAP - 1e-6:
-        max_clearance = depth - MIN_LIP_OVERLAP
-        if slanted:
-            max_clearance *= math.sin(p.wall_angle)
-        raise GeometryError(
-            f"XY Clearance too large: max {max_clearance:.2f} mm with this Flange Depth")
     core_handle = p.enable_handle and p.handle_anchor == 'INNER_CORE'
 
-    if ftype == 'CAPTIVE_DUAL':
-        slack = height / 2.0 - 1.5 * land - lip_h - p.clearance_z
-        needed = 2.0 * (1.5 * land + lip_h + p.clearance_z)
+    if flangeless:
+        # The slant over one capturing stretch of wall (the full height, or
+        # each half for Captive Dual) must outgrow the gap by the overlap.
+        depth = lip_h = 0.0
+        span = height / 2.0 if ftype == 'CAPTIVE_DUAL' else height
+        if span * lean - gap < MIN_LIP_OVERLAP - 1e-6:
+            max_clearance = (span * lean - MIN_LIP_OVERLAP) * math.sin(p.wall_angle)
+            if max_clearance < MIN_CLEARANCE:
+                raise GeometryError(
+                    "Walls too steep or too short to hold the rings without flanges: "
+                    "lower Wall Angle or raise Total Height")
+            raise GeometryError(
+                f"XY Clearance too large: max {max_clearance:.2f} mm with this "
+                f"Wall Angle and Total Height")
+        slack = 0.0
+        chamfer = min(p.foot_chamfer, 0.25 * height)
     else:
-        slack = height - 2.0 * land - lip_h - p.clearance_z
-        needed = 2.0 * land + lip_h + p.clearance_z
-    if slack < 0.0:
-        raise GeometryError(
-            f"Total height too small for these flanges (needs {needed:.2f} mm)")
-    chamfer = min(p.foot_chamfer, 0.8 * land)
+        lip_h = depth * math.tan(p.flange_angle)
+        # Neighbouring lips overlap radially by depth - gap; keep enough to hold.
+        if depth - gap < MIN_LIP_OVERLAP - 1e-6:
+            max_clearance = depth - MIN_LIP_OVERLAP
+            if slanted:
+                max_clearance *= math.sin(p.wall_angle)
+            raise GeometryError(
+                f"XY Clearance too large: max {max_clearance:.2f} mm with this Flange Depth")
+
+        if ftype == 'CAPTIVE_DUAL':
+            slack = height / 2.0 - 1.5 * land - lip_h - p.clearance_z
+            needed = 2.0 * (1.5 * land + lip_h + p.clearance_z)
+        else:
+            slack = height - 2.0 * land - lip_h - p.clearance_z
+            needed = 2.0 * land + lip_h + p.clearance_z
+        if slack < 0.0:
+            raise GeometryError(
+                f"Total height too small for these flanges (needs {needed:.2f} mm)")
+        chamfer = min(p.foot_chamfer, 0.8 * land)
 
     walls = _wall_widths(p)
     offsets = [0.0]
@@ -146,15 +165,46 @@ def plan_rings(p):
                      (b + depth, height)]
         return outer, inner
 
+    def flangeless_profile(a, wall, hollow):
+        # Plain walls; the lean below gives them their slant. Captive Dual
+        # gets a crease at mid-height where the two slants meet.
+        zs = (0.0, height / 2.0, height) if ftype == 'CAPTIVE_DUAL' else (0.0, height)
+        outer = [(a, z) for z in zs]
+        inner = [(a + wall, z) for z in zs] if hollow else None
+        return outer, inner
+
     def mirror(pts):
         return None if pts is None else [(d, height - z) for d, z in reversed(pts)]
+
+    # Inward offset added at height z. With lips, walls lean so rings slide
+    # apart freely until the lips catch. Flangeless walls lean the other way,
+    # so the slant itself catches: Down rings sit in funnels (wider at the
+    # top), Up rings in towers, and Captive Dual walls form a chevron.
+    mid = height / 2.0
+    if flangeless and ftype == 'TELESCOPIC_DOWN':
+        def shift(z):
+            return (height - z) * lean
+    elif flangeless and ftype == 'CAPTIVE_DUAL' and p.bulge == 'OUTWARD':
+        def shift(z):
+            return abs(z - mid) * lean
+    elif flangeless and ftype == 'CAPTIVE_DUAL':
+        def shift(z):
+            return (mid - abs(z - mid)) * lean
+    elif ftype == 'TELESCOPIC_UP' and not flangeless:
+        def shift(z):
+            return (height - z) * lean
+    else:
+        def shift(z):
+            return z * lean
 
     rings = []
     for i in range(n_rings):
         hollow = i < n_rings - 1
         wall = walls[i] if hollow else 0.0
         a = offsets[i]
-        if ftype == 'CAPTIVE_DUAL':
+        if flangeless:
+            outer, inner = flangeless_profile(a, wall, hollow)
+        elif ftype == 'CAPTIVE_DUAL':
             outer, inner = captive_profile(a, wall, i > 0, hollow)
         else:
             outer, inner = down_profile(a, wall, i > 0, hollow)
@@ -175,12 +225,6 @@ def plan_rings(p):
                 d0 = inner[0][0]
                 inner = [(d0 - chamfer, 0.0), (d0, chamfer)] + inner[1:]
 
-        if ftype == 'TELESCOPIC_UP':
-            def shift(z):
-                return (height - z) * lean
-        else:
-            def shift(z):
-                return z * lean
         outer = [(d + shift(z), z) for d, z in outer]
         if inner is not None:
             inner = [(d + shift(z), z) for d, z in inner]
@@ -202,10 +246,11 @@ def plan_rings(p):
     if core_min < need:
         raise FitError("The centre core would vanish")
 
-    if ftype == 'CAPTIVE_DUAL':
-        travel = 2.0 * (slack + p.clearance_z + gap * math.tan(p.flange_angle))
+    if flangeless:
+        one_way = gap / lean     # slide until the slanted walls touch
     else:
-        travel = slack + p.clearance_z + gap * math.tan(p.flange_angle)
+        one_way = slack + p.clearance_z + gap * math.tan(p.flange_angle)
+    travel = 2.0 * one_way if ftype == 'CAPTIVE_DUAL' else one_way
     shallowest = min(d for r in rings for d, _ in r.outer)
     footprint = max(math.hypot(x, y) for x, y in pb.boundary(shape, shallowest))
     stats = {

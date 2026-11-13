@@ -14,7 +14,7 @@
   - *Telescopic down*: rings drop into a cone.
   - *Telescopic up*: rings rise into a tower.
   - *Captive dual*: rings slide a little up and down but stay level.
-- **Walls:** vertical, or slanted at a set angle.
+- **Walls:** vertical or slanted, both with lips, or *flangeless*: slanted walls with no lips that hold the rings by the slant alone, like nested funnels. Flangeless Captive Dual walls form a chevron pointing outward or inward.
 - **Handles:** a cylinder, knurled grip or mushroom cap on the centre core, or a thicker, taller outer frame to hold.
 - **Live editing:** settings are stored on the object, and the mesh rebuilds as you change them.
 - **Print prep:**
