@@ -18,7 +18,7 @@
 - **Handles:** a cylinder, knurled grip or mushroom cap on the centre core, or a thicker, taller outer frame to hold.
 - **Live editing:** settings are stored on the object, and the mesh rebuilds as you change them.
 - **Print prep:**
-  - Presets for 0.4 mm and 0.6 mm nozzles and for tight or loose fits. You can save, rename and delete your own.
+  - Presets for 0.4 mm and 0.6 mm nozzles, for tight or loose fits, and a 20-ring flangeless fidget that fits a 200 mm build plate. You can save, rename and delete your own.
   - Tools to sit the model on the ground, preview a cross-section and check the mesh is printable.
   - STL export at 1 unit = 1 mm.
 
@@ -26,6 +26,8 @@
 
 1. Download `poly_fidget-x.y.z.zip` from the [latest release](https://github.com/stb1Cluny/PolyFidget/releases/latest). Don't unzip it.
 2. In Blender 5.2, open **Edit > Preferences > Get Extensions**, click the **⌄** menu at the top right, choose **Install from Disk…**, and pick the zip.
+
+To build the zip from source instead, run `python scripts/build.py` (Python 3.11+, with Blender 5.2 installed). The zip lands in `build/`.
 
 To use it, press **Shift+A > Mesh > Fidget Star / Polygon** in the 3D Viewport, then adjust the settings in the **PolyFidget** tab of the sidebar (N).
 

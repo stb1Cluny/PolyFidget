@@ -1,0 +1,15 @@
+{
+  "shape_type": "POLYGON",
+  "point_count": 6,
+  "outer_radius": 95.0,
+  "corner_radius": 1.5,
+  "ring_count": 20,
+  "wall_thickness": 1.0,
+  "clearance_xy": 2.5,
+  "scaling_mode": "LINEAR",
+  "total_height": 12.0,
+  "wall_style": "FLANGELESS",
+  "wall_angle": 75.0,
+  "flange_type": "TELESCOPIC_DOWN",
+  "enable_handle": false
+}
